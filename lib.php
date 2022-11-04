@@ -72,8 +72,12 @@ function tool_time_report_myprofile_navigation(core_user\output\myprofile\tree $
 
     // Add the node if the user is admin.
     if ($isadmin) {
-        $node = new core_user\output\myprofile\node('reports', 'tool_time_report', get_string('time_report', 'tool_time_report'), null, $url);
-        $category->add_node($node);
+        $istargetadmin = in_array($user->id, array_keys($admins));
+        $availableonadmins = get_config('tool_time_report', 'available_on_admins');
+        if (($istargetadmin && $availableonadmins) || !$istargetadmin) {
+            $node = new core_user\output\myprofile\node('reports', 'tool_time_report', get_string('time_report', 'tool_time_report'), null, $url);
+            $category->add_node($node);
+        }
     }
 
     return true;

@@ -57,6 +57,14 @@ if ($hassiteconfig) {
             new lang_string('settings:borrowedtime_desc', 'tool_time_report'),
             15 * MINSECS)
         );
+
+        // Make the report available on admin profiles.
+        $settingspage->add(new admin_setting_configcheckbox(
+            'tool_time_report/available_on_admins',
+            new lang_string('settings:available_on_admins', 'tool_time_report'),
+            new lang_string('settings:available_on_admins_desc', 'tool_time_report'),
+            1)
+        );
     }
 
     $ADMIN->add('reports', $settingspage);
