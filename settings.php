@@ -65,6 +65,16 @@ if ($hassiteconfig) {
             new lang_string('settings:available_on_admins_desc', 'tool_time_report'),
             1)
         );
+
+        // DB driver selection.
+        $drivers = \logstore_database\helper::get_drivers();
+        $settingspage->add(new admin_setting_configselect(
+            'tool_time_report/dbdriver',
+            new lang_string('settings:targets', 'tool_time_report'),
+            new lang_string('settings:targets', 'tool_time_report'),
+            $drivers[0],
+            $drivers)
+        );
     }
 
     $ADMIN->add('reports', $settingspage);
