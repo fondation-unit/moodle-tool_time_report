@@ -68,11 +68,15 @@ if ($hassiteconfig) {
 
         // DB driver selection.
         $drivers = \logstore_database\helper::get_drivers();
+        $defaultdbdriver = get_config('logstore_database', 'dbdriver');
+        if (!$defaultdbdriver) {
+            $defaultdbdriver = $drivers[0];
+        }
         $settingspage->add(new admin_setting_configselect(
             'tool_time_report/dbdriver',
             new lang_string('settings:dbdriver', 'tool_time_report'),
             new lang_string('settings:dbdriver_desc', 'tool_time_report'),
-            $drivers[0],
+            $defaultdbdriver,
             $drivers)
         );
     }
