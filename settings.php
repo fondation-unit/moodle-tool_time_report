@@ -70,7 +70,7 @@ if ($hassiteconfig) {
         $drivers = \logstore_database\helper::get_drivers();
         $defaultdbdriver = get_config('logstore_database', 'dbdriver');
         if (!$defaultdbdriver) {
-            $defaultdbdriver = $drivers[0];
+            $defaultdbdriver = 'native/mysqli';
         }
         $settingspage->add(new admin_setting_configselect(
             'tool_time_report/dbdriver',
