@@ -57,6 +57,28 @@ if ($hassiteconfig) {
             new lang_string('settings:borrowedtime_desc', 'tool_time_report'),
             15 * MINSECS)
         );
+
+        // Make the report available on admin profiles.
+        $settingspage->add(new admin_setting_configcheckbox(
+            'tool_time_report/available_on_admins',
+            new lang_string('settings:available_on_admins', 'tool_time_report'),
+            new lang_string('settings:available_on_admins_desc', 'tool_time_report'),
+            1)
+        );
+
+        // DB driver selection.
+        $drivers = \logstore_database\helper::get_drivers();
+        $defaultdbdriver = get_config('logstore_database', 'dbdriver');
+        if (!$defaultdbdriver) {
+            $defaultdbdriver = 'native/mysqli';
+        }
+        $settingspage->add(new admin_setting_configselect(
+            'tool_time_report/dbdriver',
+            new lang_string('settings:dbdriver', 'tool_time_report'),
+            new lang_string('settings:dbdriver_desc', 'tool_time_report'),
+            $defaultdbdriver,
+            $drivers)
+        );
     }
 
     $ADMIN->add('reports', $settingspage);

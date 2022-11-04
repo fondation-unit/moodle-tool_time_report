@@ -138,22 +138,42 @@ function format_readable_date($str, $num) {
 function get_log_records($userid, $startdate, $enddate) {
     global $DB;
     $allowedtargets = get_allowed_targets();
+    $dbdriver = get_config('tool_time_report', 'dbdriver');
 
-    $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
-            {logstore_standard_log}.courseid, 
-            DATE_FORMAT(FROM_UNIXTIME({logstore_standard_log}.timecreated), "%Y%m") AS datecreated, 
-            DATE(FROM_UNIXTIME({logstore_standard_log}.timecreated)) AS logtimecreated, 
-            {logstore_standard_log}.userid, {user}.email, {course}.fullname 
-            FROM {logstore_standard_log} 
-            INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id 
-            LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id 
-            WHERE {logstore_standard_log}.userid = ? 
-            AND {logstore_standard_log}.timecreated BETWEEN ? AND ? 
-            AND {logstore_standard_log}.courseid <> 1 ';
+    if ($dbdriver == 'native/pgsql') {
+        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
+                {logstore_standard_log}.courseid, 
+                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS datecreated, 
+                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS logtimecreated, 
+                {logstore_standard_log}.userid, {user}.email, {course}.fullname 
+                FROM {logstore_standard_log} 
+                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id 
+                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id 
+                WHERE {logstore_standard_log}.userid = ?  
+                AND ({logstore_standard_log}.timecreated BETWEEN ? AND ?) 
+                AND {logstore_standard_log}.courseid != 1 ';
 
-    if (count($allowedtargets) > 0) {
-        $targets = implode('","', $allowedtargets);
-        $sql .= 'AND {logstore_standard_log}.target IN ("'.$targets.'") ';
+        if (count($allowedtargets) > 0) {
+            $targets = "('" . implode("','", $allowedtargets) . "')";
+            $sql .= 'AND {logstore_standard_log}.target IN ' . $targets;
+        }
+    } else if ($dbdriver == 'native/mysqli' || $dbdriver == 'native/mariadb') {
+        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
+                {logstore_standard_log}.courseid, 
+                DATE_FORMAT(FROM_UNIXTIME({logstore_standard_log}.timecreated), "%Y%m") AS datecreated, 
+                DATE(FROM_UNIXTIME({logstore_standard_log}.timecreated)) AS logtimecreated, 
+                {logstore_standard_log}.userid, {user}.email, {course}.fullname 
+                FROM {logstore_standard_log} 
+                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id 
+                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id 
+                WHERE {logstore_standard_log}.userid = ? 
+                AND {logstore_standard_log}.timecreated BETWEEN ? AND ? 
+                AND {logstore_standard_log}.courseid <> 1 ';
+
+        if (count($allowedtargets) > 0) {
+            $targets = implode('","', $allowedtargets);
+            $sql .= 'AND {logstore_standard_log}.target IN ("'.$targets.'") ';
+        }
     }
 
     $sql .= 'ORDER BY {logstore_standard_log}.timecreated ASC';
