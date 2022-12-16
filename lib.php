@@ -42,6 +42,7 @@ use core_user\output\myprofile\tree;
 function tool_time_report_myprofile_navigation(core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
     global $CFG, $USER;
 
+    $context = context_system::instance();
     $userid = required_param('id', PARAM_INT);
     $courseid = optional_param('courseid', 0, PARAM_INT); // User id.
     
@@ -57,8 +58,6 @@ function tool_time_report_myprofile_navigation(core_user\output\myprofile\tree $
 
     if ($courseid != 0) {
         $context = context_course::instance($courseid);
-    } else {
-        $context = context_system::instance();
     }
 
     if (isset($course->id)) {
@@ -69,9 +68,10 @@ function tool_time_report_myprofile_navigation(core_user\output\myprofile\tree $
 
     $admins = get_admins();
     $isadmin = in_array($USER->id, array_keys($admins));
+    $hascapability = has_capability('tool/time_report:view', $context);
 
     // Add the node if the user is admin.
-    if ($isadmin) {
+    if ($isadmin || $hascapability) {
         $istargetadmin = in_array($user->id, array_keys($admins));
         $availableonadmins = get_config('tool_time_report', 'available_on_admins');
         if (($istargetadmin && $availableonadmins) || !$istargetadmin) {
