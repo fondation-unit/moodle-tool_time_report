@@ -157,7 +157,7 @@ function get_log_records($userid, $startdate, $enddate) {
             $targets = "('" . implode("','", $allowedtargets) . "')";
             $sql .= 'AND {logstore_standard_log}.target IN ' . $targets;
         }
-    } else if ($dbdriver == 'native/mysqli' || $dbdriver == 'native/mariadb') {
+    } else {
         $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
                 {logstore_standard_log}.courseid, 
                 DATE_FORMAT(FROM_UNIXTIME({logstore_standard_log}.timecreated), "%Y%m") AS datecreated, 
