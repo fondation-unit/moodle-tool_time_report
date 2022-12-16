@@ -70,7 +70,7 @@ function tool_time_report_myprofile_navigation(core_user\output\myprofile\tree $
     $isadmin = in_array($USER->id, array_keys($admins));
     $hascapability = has_capability('tool/time_report:view', $context);
 
-    // Add the node if the user is admin.
+    // Add the node if the user is admin or has the capability.
     if ($isadmin || $hascapability) {
         $istargetadmin = in_array($user->id, array_keys($admins));
         $availableonadmins = get_config('tool_time_report', 'available_on_admins');
