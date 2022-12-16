@@ -21,7 +21,7 @@ Admin tool for [Moodle](https://moodle.org/) creating reports of time spent onli
 
 ## Usage
 
-Admins can access the reports through the user's profile (e.g. `/user/profile.php?id=2`), under the **reports category**.
+Admins and users having the `tool/time_report:view` capability can access the reports through the user's profile (e.g. `/user/profile.php?id=2`), under the **reports category**.
 
 The interface allow the creationg of CSV files listing 
 
