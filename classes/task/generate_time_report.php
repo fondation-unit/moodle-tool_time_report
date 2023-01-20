@@ -36,12 +36,12 @@ class generate_time_report extends \core\task\adhoc_task {
 
     public $totaltime = 0;
 
-    public function setTotaltime($totaltime) { 
-        $this->totaltime = $totaltime; 
+    public function set_total_time($totaltime) {
+        $this->totaltime = $totaltime;
     }
 
-    public function getTotaltime() { 
-        return $this->totaltime; 
+    public function get_total_time() {
+        return $this->totaltime;
     }
 
     /**
@@ -52,21 +52,21 @@ class generate_time_report extends \core\task\adhoc_task {
 
         $data = $this->get_custom_data();
         if (isset($data)) {
-            // Check the dates
+            // Check the dates.
             if (!isset($data->start)) {
                 $data->start = time() * 1000;
             }
             if (!isset($data->end)) {
                 $data->end = time() * 1000;
             }
-            // Convert Javascript timestamp to PHP
+            // Convert Javascript timestamp to PHP.
             $startdate = $data->start / 1000;
             $enddate = $data->end / 1000;
 
             $user = $DB->get_record('user', array('id' => $data->userid), '*', MUST_EXIST);
             $results = get_log_records($user->id, $startdate, $enddate);
-            $csv_data = $this->prepare_results($user, $results);
-            $this->create_csv($user, $data->requestorid, $csv_data, $data->contextid, $startdate, $enddate);
+            $csvdata = $this->prepare_results($user, $results);
+            $this->create_csv($user, $data->requestorid, $csvdata, $data->contextid, $startdate, $enddate);
         }
     }
 
@@ -92,7 +92,7 @@ class generate_time_report extends \core\task\adhoc_task {
         $currentday = array_values($data)[0];
         $timefortheday = 0;
         $i = 0;
-        $length = sizeof($data);
+        $length = count($data);
 
         $out = array();
         $totaltime = 0;
@@ -101,14 +101,14 @@ class generate_time_report extends \core\task\adhoc_task {
             $item = array_values($data)[$i];
             $nextval = self::get_nextval($data, $i);
 
-            // Last iteration
+            // Last iteration.
             if ($item->id == $nextval->id) {
                 $totaltime = $totaltime + $timefortheday;
                 $out = self::push_result($out, $item->timecreated, $timefortheday);
                 break;
             }
 
-            // If the item log time is different than the current day time, we move forward
+            // If the item log time is different than the current day time, we move forward.
             if ($item->logtimecreated != $currentday->logtimecreated) {
                 $currentday = $item;
                 $timefortheday = 0;
@@ -130,18 +130,18 @@ class generate_time_report extends \core\task\adhoc_task {
                     }
                 }
             } else if ($nextval->logtimecreated != $currentday->logtimecreated) {
-                // Last iteration of the day
+                // Last iteration of the day.
                 $timefortheday = $timefortheday + $borrowedtime;
             }
 
-            if (($timefortheday > 0 && isset($nextval) && $nextval->logtimecreated != $currentday->logtimecreated) 
+            if (($timefortheday > 0 && isset($nextval) && $nextval->logtimecreated != $currentday->logtimecreated)
                 || ($timefortheday > 0 && $nextval == $item)) {
                 $totaltime = $totaltime + $timefortheday;
                 $out = self::push_result($out, $item->timecreated, $timefortheday);
             }
         }
 
-        $this->setTotaltime($totaltime);
+        $this->set_total_time($totaltime);
         return $out;
     }
 
@@ -150,10 +150,10 @@ class generate_time_report extends \core\task\adhoc_task {
      */
     private static function get_nextval($data, $iteration) {
         $item = array_values($data)[$iteration];
-        if (!isset(array_values($data)[$iteration+1])) {
+        if (!isset(array_values($data)[$iteration + 1])) {
             return $item;
         }
-        return array_values($data)[$iteration+1];
+        return array_values($data)[$iteration + 1];
     }
 
     private static function push_result($items, $itemtimecreated, $timefortheday) {
@@ -170,27 +170,27 @@ class generate_time_report extends \core\task\adhoc_task {
 
         $strstartdate = date('d-m-Y', $startdate);
         $strenddate = date('d-m-Y', $enddate);
-        
+
         $delimiter = \csv_import_reader::get_delimiter('comma');
         $csventries = array(array());
         $csventries[] = array(get_string('name', 'core'), $user->lastname);
         $csventries[] = array(get_string('firstname', 'core'), $user->firstname);
         $csventries[] = array(get_string('email', 'core'), $user->email);
         $csventries[] = array(get_string('period', 'tool_time_report'), $strstartdate . ' - ' . $strenddate);
-        $csventries[] = array(get_string('period_total_time', 'tool_time_report'), self::format_seconds($this->getTotaltime()));
+        $csventries[] = array(get_string('period_total_time', 'tool_time_report'), self::format_seconds($this->get_total_time()));
         $csventries[] = array('Date', get_string('total_duration', 'tool_time_report'));
 
         $returnstr = '';
-        $len = sizeof($data);
+        $len = count($data);
         $shift = count($csventries);
 
         for ($i = 0; $i < $len; $i++) {
-            $csventries[$i+$shift] = $data[$i];
+            $csventries[$i + $shift] = $data[$i];
         }
         foreach ($csventries as $entry) {
             $returnstr .= '"' . implode('"' . $delimiter . '"', $entry) . '"' . "\n";
         }
-        
+
         $filename = generate_file_name(fullname($user), $strstartdate, $strenddate);
 
         return $this->write_new_file($returnstr, $contextid, $filename, $user, $requestorid);
@@ -212,7 +212,7 @@ class generate_time_report extends \core\task\adhoc_task {
 
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
                 $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-            
+
         if ($file) {
             $file->delete(); // Delete the old file first.
         }
@@ -244,7 +244,7 @@ class generate_time_report extends \core\task\adhoc_task {
         $message->notification      = 1;
         $message->contexturl        = $contexturl;
         $message->contexturlname    = get_string('time_report', 'tool_time_report');
-        $message->attachment = $file; // Set the file attachment
+        $message->attachment = $file; // Set the file attachment.
         message_send($message);
     }
 }

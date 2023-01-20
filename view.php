@@ -56,10 +56,10 @@ echo $OUTPUT->header();
 
 // Disallow the view page on admin accounts.
 $admins = get_admins();
-$is_admin = in_array($user->id, array_keys($admins));
+$isadmin = in_array($user->id, array_keys($admins));
 $availableonadmins = get_config('tool_time_report', 'available_on_admins');
 
-if ($is_admin && !$availableonadmins) {
+if ($isadmin && !$availableonadmins) {
     redirect("$CFG->wwwroot/user/profile.php?id=$user->id");
 }
 

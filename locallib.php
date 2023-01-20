@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Time Report tool plugin's local lib.
@@ -20,8 +34,8 @@ function get_reports_files($contextid, $userid) {
     global $DB;
 
     $conditions = array('contextid' => $contextid, 'component' => 'tool_time_report', 'filearea' => 'content', 'userid' => $userid);
-    $file_records = $DB->get_records('files', $conditions);
-    return $file_records;
+    $filerecords = $DB->get_records('files', $conditions);
+    return $filerecords;
 }
 
 /**
@@ -55,8 +69,8 @@ function generate_file_name($username, $startdate, $enddate) {
     if (!$username) {
         throw new \coding_exception('Missing username');
     }
-    return strtolower(get_string('report', 'core')) 
-            . '__' . to_snake_case($username) 
+    return strtolower(get_string('report', 'core'))
+            . '__' . to_snake_case($username)
             . '__' . $startdate . '_' . $enddate . '.csv';
 }
 
@@ -83,7 +97,7 @@ function get_user_id_from_filename($filename) {
 function remove_reports_files($contextid, $userid) {
     $files = get_reports_files($contextid, $userid);
 
-    foreach($files as $file) {
+    foreach ($files as $file) {
         $fs = get_file_storage();
         $file = $fs->get_file($file->contextid, $file->component, $file->filearea,
             $file->itemid, $file->filepath, $file->filename);
