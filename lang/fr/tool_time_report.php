@@ -18,7 +18,7 @@
  * Time Report tool plugin's strings file.
  *
  * @package   tool_time_report
- * @copyright 2022 Pierre Duverneix - Fondation UNIT
+ * @copyright 2023 Pierre Duverneix - Fondation UNIT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -50,24 +50,3 @@ $string['settings:available_on_admins'] = 'Accessible sur les profils admins';
 $string['settings:available_on_admins_desc'] = 'Rendre le rapport accessible sur les profils admins.';
 $string['settings:dbdriver'] = 'Driver base de données';
 $string['settings:dbdriver_desc'] = 'Sélection du driver de la base de données.';
-$string['datepicker:january'] = 'Janvier';
-$string['datepicker:february'] = 'Février';
-$string['datepicker:march'] = 'Mars';
-$string['datepicker:april'] = 'Avril';
-$string['datepicker:may'] = 'Mai';
-$string['datepicker:june'] = 'Juin';
-$string['datepicker:july'] = 'Juillet';
-$string['datepicker:august'] = 'Août';
-$string['datepicker:september'] = 'Septembre';
-$string['datepicker:october'] = 'Octobre';
-$string['datepicker:november'] = 'Novembre';
-$string['datepicker:december'] = 'Décembre';
-$string['datepicker:sunday'] = 'Dimanche';
-$string['datepicker:monday'] = 'Lundi';
-$string['datepicker:tuesday'] = 'Mardi';
-$string['datepicker:wednesday'] = 'Mercredi';
-$string['datepicker:thursday'] = 'Jeudi';
-$string['datepicker:friday'] = 'Vendredi';
-$string['datepicker:saturday'] = 'Samedi';
-$string['datepicker:weekheader'] = 'Se';
-$string['datepicker:close'] = 'Fermer';

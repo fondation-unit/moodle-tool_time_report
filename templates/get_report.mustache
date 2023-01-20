@@ -5,13 +5,13 @@
         <div class="form-group row">
             <label for="startInput" class="col-sm-2 col-form-label">{{#str}} startingdate, tool_time_report {{/str}}</label>
             <div class="">
-                <input type="text" class="form-control datepicker" id="startInput" aria-describedby="startHelp" placeholder="Date de début..." data-min-view="months" data-view="months" data-date-format="MM yyyy">
+                <input type="date" class="form-control" id="startInput" aria-describedby="startHelp" placeholder="Date de début...">
             </div>
         </div>
         <div class="form-group row">
-            <label for="startInput" class="col-sm-2 col-form-label">{{#str}} endingdate, tool_time_report {{/str}}</label>
+            <label for="endInput" class="col-sm-2 col-form-label">{{#str}} endingdate, tool_time_report {{/str}}</label>
             <div class="">
-                <input type="text" class="form-control datepicker" id="endInput" aria-describedby="endHelp" placeholder="Date de fin..." data-min-view="months" data-view="months" data-date-format="MM yyyy">
+                <input type="date" class="form-control" id="endInput" aria-describedby="endHelp" placeholder="Date de fin...">
             </div>
         </div>
         <div class="row mt-4">
@@ -27,28 +27,3 @@
 
     {{> tool_time_report/reports_list }}
 </div>
-
-{{#js}}
-require(['jquery', 'tool_time_report/setup', 'tool_time_report/jquery-ui'], function($, setup, ui) {
-    var stringPromises = setup.init();
-    var presets = setup.getPresets();
-
-    $.when(stringPromises).then(function(strings) {
-        presets = setup.setStrings(strings);
-
-        if (presets) {
-            $.datepicker.regional['{{ lang }}'] = presets;
-            $.datepicker.setDefaults($.datepicker.regional['{{ lang }}']);
-
-            $("#startInput, #endInput").datepicker({
-                changeMonth: true,
-                changeYear: true,
-                showButtonPanel: true,
-                onClose: function(dateText, inst) {
-                    $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-                }
-            });
-        }
-    });
-});
-{{/js}}

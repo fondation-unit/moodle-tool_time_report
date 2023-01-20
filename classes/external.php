@@ -18,7 +18,7 @@
  * Time Report tool plugin's external functions file.
  *
  * @package   tool_time_report
- * @copyright 2022 Pierre Duverneix - Fondation UNIT
+ * @copyright 2023 Pierre Duverneix - Fondation UNIT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -74,16 +74,20 @@ class external extends external_api {
             throw new \coding_exception('Missing contextid or userid parameters');
         }
 
+        $strstartdate = generate_date_from_jstimestamp($serialiseddata['start']);
+        $strenddate = generate_date_from_jstimestamp($serialiseddata['end']);
+
         $fs = get_file_storage();
-        $file = $fs->get_file($serialiseddata['contextid'], 
-            'tool_time_report', 
-            'content', 
-            '0', 
-            '/', 
-            generate_file_name($serialiseddata['username'], $serialiseddata['start'], $serialiseddata['end'])
+        $file = $fs->get_file($serialiseddata['contextid'],
+            'tool_time_report',
+            'content',
+            '0',
+            '/',
+            generate_file_name($serialiseddata['username'], $strstartdate, $strenddate)
         );
+
         if ($file) {
-            // Delete the old file first
+            // Delete the old file first.
             $file->delete();
         }
 
@@ -148,10 +152,13 @@ class external extends external_api {
         $contextid = $serialiseddata['contextid'];
         $userid = $serialiseddata['userid'];
 
+        $strstartdate = generate_date_from_jstimestamp($serialiseddata['start']);
+        $strenddate = generate_date_from_jstimestamp($serialiseddata['end']);
+
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         if ($user) {
             $fs = get_file_storage();
-            $filename = generate_file_name(fullname($user), $serialiseddata['start'], $serialiseddata['end']);
+            $filename = generate_file_name(fullname($user), $strstartdate, $strenddate);
             $file = $fs->get_file($contextid, 'tool_time_report', 'content', '0', '/', $filename);
 
             if ($file) {

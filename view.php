@@ -18,7 +18,7 @@
  * Time Report tool plugin's view.
  *
  * @package   tool_time_report
- * @copyright 2022 Pierre Duverneix - Fondation UNIT
+ * @copyright 2023 Pierre Duverneix - Fondation UNIT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -56,10 +56,10 @@ echo $OUTPUT->header();
 
 // Disallow the view page on admin accounts.
 $admins = get_admins();
-$is_admin = in_array($user->id, array_keys($admins));
+$isadmin = in_array($user->id, array_keys($admins));
 $availableonadmins = get_config('tool_time_report', 'available_on_admins');
 
-if ($is_admin && !$availableonadmins) {
+if ($isadmin && !$availableonadmins) {
     redirect("$CFG->wwwroot/user/profile.php?id=$user->id");
 }
 

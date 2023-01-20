@@ -18,12 +18,12 @@
  * Settings script.
  *
  * @package   tool_time_report
- * @copyright 2022 Pierre Duverneix - Fondation UNIT
+ * @copyright 2023 Pierre Duverneix - Fondation UNIT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
-require_once dirname(__FILE__) . '/locallib.php';
+require_once(dirname(__FILE__) . '/locallib.php');
 
 if ($hassiteconfig) {
     $ADMIN->add('reports', new admin_category('tool_time_report', new lang_string('pluginname', 'tool_time_report')));

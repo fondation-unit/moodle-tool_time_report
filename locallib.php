@@ -1,10 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Time Report tool plugin's local lib.
  *
  * @package   tool_time_report
- * @copyright 2022 Pierre Duverneix - Fondation UNIT
+ * @copyright 2023 Pierre Duverneix - Fondation UNIT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -20,8 +34,8 @@ function get_reports_files($contextid, $userid) {
     global $DB;
 
     $conditions = array('contextid' => $contextid, 'component' => 'tool_time_report', 'filearea' => 'content', 'userid' => $userid);
-    $file_records = $DB->get_records('files', $conditions);
-    return $file_records;
+    $filerecords = $DB->get_records('files', $conditions);
+    return $filerecords;
 }
 
 /**
@@ -55,13 +69,9 @@ function generate_file_name($username, $startdate, $enddate) {
     if (!$username) {
         throw new \coding_exception('Missing username');
     }
-    return strtolower(get_string('report', 'core')) 
-            . '__' 
-            . to_snake_case($username) 
-            . '__' 
-            . format_readable_date($startdate, 2) 
-            . '_' 
-            . format_readable_date($enddate, 2) . '.csv';
+    return strtolower(get_string('report', 'core'))
+            . '__' . to_snake_case($username)
+            . '__' . $startdate . '_' . $enddate . '.csv';
 }
 
 /**
@@ -87,7 +97,7 @@ function get_user_id_from_filename($filename) {
 function remove_reports_files($contextid, $userid) {
     $files = get_reports_files($contextid, $userid);
 
-    foreach($files as $file) {
+    foreach ($files as $file) {
         $fs = get_file_storage();
         $file = $fs->get_file($file->contextid, $file->component, $file->filearea,
             $file->itemid, $file->filepath, $file->filename);
@@ -114,20 +124,6 @@ function to_snake_case($str, $glue = '_') {
 }
 
 /**
- * Adds a hyphen between month and year.
- *
- * @param  string $str Date string
- * @param  string $num Position of the cut off
- * @return string
- */
-function format_readable_date($str, $num) {
-    $output[0] = substr($str, 0, $num);
-    $output[1] = '-';
-    $output[2] = substr($str, $num, strlen($str));
-    return implode($output);
-}
-
-/**
  * Get the log records
  *
  * @param  int $userid
@@ -141,16 +137,16 @@ function get_log_records($userid, $startdate, $enddate) {
     $dbdriver = get_config('tool_time_report', 'dbdriver');
 
     if ($dbdriver == 'native/pgsql') {
-        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
-                {logstore_standard_log}.courseid, 
-                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS datecreated, 
-                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS logtimecreated, 
-                {logstore_standard_log}.userid, {user}.email, {course}.fullname 
-                FROM {logstore_standard_log} 
-                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id 
-                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id 
-                WHERE {logstore_standard_log}.userid = ?  
-                AND ({logstore_standard_log}.timecreated BETWEEN ? AND ?) 
+        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated,
+                {logstore_standard_log}.courseid,
+                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS datecreated,
+                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS logtimecreated,
+                {logstore_standard_log}.userid, {user}.email, {course}.fullname
+                FROM {logstore_standard_log}
+                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id
+                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id
+                WHERE {logstore_standard_log}.userid = ?
+                AND ({logstore_standard_log}.timecreated BETWEEN ? AND ?)
                 AND {logstore_standard_log}.courseid != 1 ';
 
         if (count($allowedtargets) > 0) {
@@ -158,16 +154,16 @@ function get_log_records($userid, $startdate, $enddate) {
             $sql .= 'AND {logstore_standard_log}.target IN ' . $targets;
         }
     } else {
-        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
-                {logstore_standard_log}.courseid, 
-                DATE_FORMAT(FROM_UNIXTIME({logstore_standard_log}.timecreated), "%Y%m") AS datecreated, 
-                DATE(FROM_UNIXTIME({logstore_standard_log}.timecreated)) AS logtimecreated, 
-                {logstore_standard_log}.userid, {user}.email, {course}.fullname 
-                FROM {logstore_standard_log} 
-                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id 
-                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id 
-                WHERE {logstore_standard_log}.userid = ? 
-                AND {logstore_standard_log}.timecreated BETWEEN ? AND ? 
+        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated,
+                {logstore_standard_log}.courseid,
+                DATE_FORMAT(FROM_UNIXTIME({logstore_standard_log}.timecreated), "%Y%m") AS datecreated,
+                DATE(FROM_UNIXTIME({logstore_standard_log}.timecreated)) AS logtimecreated,
+                {logstore_standard_log}.userid, {user}.email, {course}.fullname
+                FROM {logstore_standard_log}
+                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id
+                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id
+                WHERE {logstore_standard_log}.userid = ?
+                AND {logstore_standard_log}.timecreated BETWEEN ? AND ?
                 AND {logstore_standard_log}.courseid <> 1 ';
 
         if (count($allowedtargets) > 0) {
@@ -213,4 +209,13 @@ function get_allowed_targets() {
         ARRAY_FILTER_USE_KEY
     );
     return $filteredtargets;
+}
+
+/**
+ * Returns a 'd-m-Y' date from Javascript timestamp format.
+ *
+ * @return String
+ */
+function generate_date_from_jstimestamp($timestamp) {
+    return date('d-m-Y', $timestamp / 1000);
 }
