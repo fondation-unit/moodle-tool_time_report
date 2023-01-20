@@ -18,7 +18,7 @@
  * Settings script.
  *
  * @package   tool_time_report
- * @copyright 2022 Pierre Duverneix - Fondation UNIT
+ * @copyright 2023 Pierre Duverneix - Fondation UNIT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
