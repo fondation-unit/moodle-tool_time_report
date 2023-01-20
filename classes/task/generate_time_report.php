@@ -19,25 +19,17 @@ class generate_time_report extends \core\task\adhoc_task {
         return $this->totaltime; 
     }
 
-    private function get_time_spent($userid, $startmonth, $endmonth) {
+    private function get_time_spent($userid, $startdate, $enddate) {
         require_once dirname(__FILE__) . '/../../locallib.php';
 
-        if (!isset($startmonth)) {
-            $startmonth = date('mY');
+        if (!isset($startdate)) {
+            $startdate = time() * 1000;
         }
-        if (!isset($endmonth)) {
-            $endmonth = date('mY');
+        if (!isset($enddate)) {
+            $enddate = time() * 1000;
         }
 
-        $lastday = date(
-            date('t', strtotime('01')).'-'.$endmonth[0].$endmonth[1].'-'.$endmonth[2].$endmonth[3].$endmonth[4].$endmonth[5]
-        );
-        $startdate = \DateTime::createFromFormat('dmY', '01'.$startmonth);
-        $enddate = \DateTime::createFromFormat('dmY', $lastday[0].$lastday[1].$endmonth);
-        $startdate = $startdate->getTimestamp();
-        $enddate = $enddate->getTimestamp();
-
-        return get_log_records($userid, $startdate, $enddate);
+        return get_log_records($userid, $startdate / 1000, $enddate / 1000);
     }
 
     /**
@@ -50,7 +42,7 @@ class generate_time_report extends \core\task\adhoc_task {
         if (isset($data)) {
             $user = $DB->get_record('user', array('id' => $data->userid), '*', MUST_EXIST);
             $results = $this->get_time_spent($user->id, $data->start, $data->end);
-            $csv_data = $this->prepare_results($user, $results, $data->start, $data->end);
+            $csv_data = $this->prepare_results($user, $results);
             $this->create_csv($user, $data->requestorid, $csv_data, $data->contextid, $data->start, $data->end);
         }
     }
@@ -67,7 +59,7 @@ class generate_time_report extends \core\task\adhoc_task {
             . ($milliseconds ? $milliseconds : '');
     }
 
-    private function prepare_results($user, $data, $startmonth, $endmonth) {
+    private function prepare_results($user, $data) {
         if (!array_values($data)) {
             return '<h5>'. get_string('no_results_found', 'tool_time_report') .'</h5>';
         }
@@ -148,22 +140,17 @@ class generate_time_report extends \core\task\adhoc_task {
         return $items;
     }
 
-    private function create_csv($user, $requestorid, $data, $contextid, $startmonth, $endmonth) {
+    private function create_csv($user, $requestorid, $data, $contextid, $startdate, $enddate) {
         global $CFG;
         require_once $CFG->libdir . '/csvlib.class.php';
         require_once dirname(__FILE__) . '/../../locallib.php';
         
-        $datestart = \DateTime::createFromFormat('mY', $startmonth);
-        $startmonthstr = $datestart->format('m/Y');
-        $dateend = \DateTime::createFromFormat('mY', $endmonth);
-        $endmonthstr = strftime($dateend->format('m/Y'));
-
         $delimiter = \csv_import_reader::get_delimiter('comma');
         $csventries = array(array());
         $csventries[] = array(get_string('name', 'core'), $user->lastname);
         $csventries[] = array(get_string('firstname', 'core'), $user->firstname);
         $csventries[] = array(get_string('email', 'core'), $user->email);
-        $csventries[] = array(get_string('period', 'tool_time_report'), $startmonthstr . ' - ' . $endmonthstr);
+        $csventries[] = array(get_string('period', 'tool_time_report'), $startdate . ' - ' . $enddate);
         $csventries[] = array(get_string('period_total_time', 'tool_time_report'), self::format_seconds($this->getTotaltime()));
         $csventries[] = array('Date', get_string('total_duration', 'tool_time_report'));
 
@@ -178,7 +165,7 @@ class generate_time_report extends \core\task\adhoc_task {
             $returnstr .= '"' . implode('"' . $delimiter . '"', $entry) . '"' . "\n";
         }
         
-        $filename = generate_file_name(fullname($user), $startmonth, $endmonth);
+        $filename = generate_file_name(fullname($user), $startdate, $enddate);
 
         return $this->write_new_file($returnstr, $contextid, $filename, $user, $requestorid);
     }

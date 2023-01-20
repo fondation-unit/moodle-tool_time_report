@@ -20,12 +20,12 @@ define(['jquery',
             $('#submitdate').click(function (e) {
                 e.preventDefault();
 
-                var startDate = $('#startInput').val();
-                var endDate = $('#endInput').val(); console.log(startDate, endDate);
-
+                var startDate = document.querySelector('#startInput').valueAsNumber;
+                var endDate = document.querySelector('#endInput').valueAsNumber;
+                //var startDate = $('#startInput').val();
+                //var endDate = $('#endInput').val();
+                console.log(startDate, endDate);
                 var completion = this.checkCompletion(startDate, endDate);
-
-
 
                 var icon = $('<img/>');
                 icon.attr('alt', 'loading');
@@ -44,8 +44,8 @@ define(['jquery',
                     requestorid: this.requestorId,
                     userid: this.userId,
                     username: this.userName,
-                    start: $('#startInput').val(),
-                    end: $('#endInput').val(),
+                    start: startDate,
+                    end: endDate,
                     contextid: this.contextId
                 };
                 this.formdata = formdata;

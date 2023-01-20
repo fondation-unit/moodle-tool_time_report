@@ -141,16 +141,16 @@ function get_log_records($userid, $startdate, $enddate) {
     $dbdriver = get_config('tool_time_report', 'dbdriver');
 
     if ($dbdriver == 'native/pgsql') {
-        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
-                {logstore_standard_log}.courseid, 
-                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS datecreated, 
-                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS logtimecreated, 
-                {logstore_standard_log}.userid, {user}.email, {course}.fullname 
-                FROM {logstore_standard_log} 
-                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id 
-                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id 
-                WHERE {logstore_standard_log}.userid = ?  
-                AND ({logstore_standard_log}.timecreated BETWEEN ? AND ?) 
+        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated,
+                {logstore_standard_log}.courseid,
+                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS datecreated,
+                DATE(to_timestamp({logstore_standard_log}.timecreated)) AS logtimecreated,
+                {logstore_standard_log}.userid, {user}.email, {course}.fullname
+                FROM {logstore_standard_log}
+                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id
+                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id
+                WHERE {logstore_standard_log}.userid = ?
+                AND ({logstore_standard_log}.timecreated BETWEEN ? AND ?)
                 AND {logstore_standard_log}.courseid != 1 ';
 
         if (count($allowedtargets) > 0) {
@@ -158,16 +158,16 @@ function get_log_records($userid, $startdate, $enddate) {
             $sql .= 'AND {logstore_standard_log}.target IN ' . $targets;
         }
     } else {
-        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated, 
-                {logstore_standard_log}.courseid, 
-                DATE_FORMAT(FROM_UNIXTIME({logstore_standard_log}.timecreated), "%Y%m") AS datecreated, 
-                DATE(FROM_UNIXTIME({logstore_standard_log}.timecreated)) AS logtimecreated, 
-                {logstore_standard_log}.userid, {user}.email, {course}.fullname 
-                FROM {logstore_standard_log} 
-                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id 
-                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id 
-                WHERE {logstore_standard_log}.userid = ? 
-                AND {logstore_standard_log}.timecreated BETWEEN ? AND ? 
+        $sql = 'SELECT {logstore_standard_log}.id, {logstore_standard_log}.timecreated,
+                {logstore_standard_log}.courseid,
+                DATE_FORMAT(FROM_UNIXTIME({logstore_standard_log}.timecreated), "%Y%m") AS datecreated,
+                DATE(FROM_UNIXTIME({logstore_standard_log}.timecreated)) AS logtimecreated,
+                {logstore_standard_log}.userid, {user}.email, {course}.fullname
+                FROM {logstore_standard_log}
+                INNER JOIN {course} ON {logstore_standard_log}.courseid = {course}.id
+                LEFT OUTER JOIN {user} ON {logstore_standard_log}.userid = {user}.id
+                WHERE {logstore_standard_log}.userid = ?
+                AND {logstore_standard_log}.timecreated BETWEEN ? AND ?
                 AND {logstore_standard_log}.courseid <> 1 ';
 
         if (count($allowedtargets) > 0) {
