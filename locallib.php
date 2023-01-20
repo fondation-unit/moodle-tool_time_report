@@ -210,3 +210,12 @@ function get_allowed_targets() {
     );
     return $filteredtargets;
 }
+
+/**
+ * Returns a 'd-m-Y' date from Javascript timestamp format.
+ *
+ * @return String
+ */
+function generate_date_from_jstimestamp($timestamp) {
+    return date('d-m-Y', $timestamp / 1000);
+}
