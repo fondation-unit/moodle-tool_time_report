@@ -30,25 +30,23 @@ The plugin uses a cron task job to generate the reports. It is not needed to sta
 A notification is sent to the requestor when the report is ready to be downloaded.
 
 The name of the files are created according the following scheme :
-`report__firstname_lastname__mm-yyyy_mm-yyyy.csv`
-
-`mm-yyyy_mm-yyyy` being the selected starting date followed by the ending date.
+`report__firstname_lastname__dd-mm-yyyy_dd-mm-yyyy.csv`
 
 #### UI overview :
 
-```ruby
+```php
 "Time report"
 
-    Starting date  [mmyyyy] #-> datepicker
-    Ending date    [mmyyyy] #-> datepicker
+    Starting date  [yyyy-mm-dd] #-> date input
+    Ending date    [yyyy-mm-dd] #-> date input
 
     ["Create"] #-> triggers the generate_report amd script
 
 "Generated reports list"
 
-    report__jean_dupont__03-2022_05-2022.csv #-> downloadable file
-    report__jean_dupont__02-2021_05-2022.csv #-> downloadable file
-    report__jean_dupont__01-2022_05-2022.csv #-> downloadable file
+    report__jean_dupont__01-02-2023-20-02-2023.csv #-> downloadable file
+    report__jean_dupont__10-02-2023-10-03-2023.csv #-> downloadable file
+    report__jean_dupont__11-05-2023-20-09-2023.csv #-> downloadable file
 
 ["Remove files"] #-> purges the report files of the current user
 ```
