@@ -23,7 +23,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die;
-require_once dirname(__FILE__) . '/locallib.php';
+require_once(dirname(__FILE__) . '/locallib.php');
 
 if ($hassiteconfig) {
     $ADMIN->add('reports', new admin_category('tool_time_report', new lang_string('pluginname', 'tool_time_report')));

@@ -24,8 +24,10 @@
 
 namespace tool_time_report\task;
 
-require_once dirname(__FILE__) . '/../../../../../config.php';
-require_once dirname(__FILE__) . '/../../locallib.php';
+require_once(dirname(__FILE__) . '/../../../../../config.php');
+require_once(dirname(__FILE__) . '/../../locallib.php');
+
+require_login();
 
 use core\message\message;
 use moodle_url;
@@ -163,8 +165,8 @@ class generate_time_report extends \core\task\adhoc_task {
 
     private function create_csv($user, $requestorid, $data, $contextid, $startdate, $enddate) {
         global $CFG;
-        require_once $CFG->libdir . '/csvlib.class.php';
-        require_once dirname(__FILE__) . '/../../locallib.php';
+        require_once($CFG->libdir . '/csvlib.class.php');
+        require_once(dirname(__FILE__) . '/../../locallib.php');
 
         $strstartdate = date('d-m-Y', $startdate);
         $strenddate = date('d-m-Y', $enddate);

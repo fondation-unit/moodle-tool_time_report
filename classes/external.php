@@ -26,7 +26,7 @@ namespace tool_time_report;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once $CFG->libdir . "/externallib.php";
+require_once($CFG->libdir . "/externallib.php");
 
 use coding_exception;
 use context_system;
@@ -62,7 +62,7 @@ class external extends external_api {
      * @return int new group id.
      */
     public static function generate_time_report($jsonformdata) {
-        require_once dirname(__FILE__) . '/../locallib.php';
+        require_once(dirname(__FILE__) . '/../locallib.php');
 
         $params = self::validate_parameters(self::generate_time_report_parameters(), [
             'jsonformdata' => $jsonformdata
@@ -130,7 +130,7 @@ class external extends external_api {
     public static function poll_report_file($jsonformdata) {
         global $CFG, $DB, $USER;
 
-        require_once dirname(__FILE__) . '/../locallib.php';
+        require_once(dirname(__FILE__) . '/../locallib.php');
 
         $params = self::validate_parameters(self::poll_report_file_parameters(), [
             'jsonformdata' => $jsonformdata
