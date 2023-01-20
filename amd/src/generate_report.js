@@ -22,9 +22,6 @@ define(['jquery',
 
                 var startDate = document.querySelector('#startInput').valueAsNumber;
                 var endDate = document.querySelector('#endInput').valueAsNumber;
-                //var startDate = $('#startInput').val();
-                //var endDate = $('#endInput').val();
-                console.log(startDate, endDate);
                 var completion = this.checkCompletion(startDate, endDate);
 
                 var icon = $('<img/>');
