@@ -3,6 +3,7 @@
 namespace tool_time_report\task;
 
 require_once __DIR__ . '/../../../../../config.php';
+require_once dirname(__FILE__) . '/../../locallib.php';
 
 use core\message\message;
 use moodle_url;
@@ -19,19 +20,6 @@ class generate_time_report extends \core\task\adhoc_task {
         return $this->totaltime; 
     }
 
-    private function get_time_spent($userid, $startdate, $enddate) {
-        require_once dirname(__FILE__) . '/../../locallib.php';
-
-        if (!isset($startdate)) {
-            $startdate = time() * 1000;
-        }
-        if (!isset($enddate)) {
-            $enddate = time() * 1000;
-        }
-
-        return get_log_records($userid, $startdate / 1000, $enddate / 1000);
-    }
-
     /**
      * Execute the task.
      */
@@ -40,10 +28,21 @@ class generate_time_report extends \core\task\adhoc_task {
 
         $data = $this->get_custom_data();
         if (isset($data)) {
+            // Check the dates
+            if (!isset($data->start)) {
+                $data->start = time() * 1000;
+            }
+            if (!isset($data->end)) {
+                $data->end = time() * 1000;
+            }
+            // Convert Javascript timestamp to PHP
+            $startdate = $data->start / 1000;
+            $enddate = $data->end / 1000;
+
             $user = $DB->get_record('user', array('id' => $data->userid), '*', MUST_EXIST);
-            $results = $this->get_time_spent($user->id, $data->start, $data->end);
+            $results = get_log_records($user->id, $startdate, $enddate);
             $csv_data = $this->prepare_results($user, $results);
-            $this->create_csv($user, $data->requestorid, $csv_data, $data->contextid, $data->start, $data->end);
+            $this->create_csv($user, $data->requestorid, $csv_data, $data->contextid, $startdate, $enddate);
         }
     }
 
@@ -144,13 +143,16 @@ class generate_time_report extends \core\task\adhoc_task {
         global $CFG;
         require_once $CFG->libdir . '/csvlib.class.php';
         require_once dirname(__FILE__) . '/../../locallib.php';
+
+        $strstartdate = date('d-m-Y', $startdate);
+        $strenddate = date('d-m-Y', $enddate);
         
         $delimiter = \csv_import_reader::get_delimiter('comma');
         $csventries = array(array());
         $csventries[] = array(get_string('name', 'core'), $user->lastname);
         $csventries[] = array(get_string('firstname', 'core'), $user->firstname);
         $csventries[] = array(get_string('email', 'core'), $user->email);
-        $csventries[] = array(get_string('period', 'tool_time_report'), $startdate . ' - ' . $enddate);
+        $csventries[] = array(get_string('period', 'tool_time_report'), $strstartdate . ' - ' . $strenddate);
         $csventries[] = array(get_string('period_total_time', 'tool_time_report'), self::format_seconds($this->getTotaltime()));
         $csventries[] = array('Date', get_string('total_duration', 'tool_time_report'));
 
@@ -165,7 +167,7 @@ class generate_time_report extends \core\task\adhoc_task {
             $returnstr .= '"' . implode('"' . $delimiter . '"', $entry) . '"' . "\n";
         }
         
-        $filename = generate_file_name(fullname($user), $startdate, $enddate);
+        $filename = generate_file_name(fullname($user), $strstartdate, $strenddate);
 
         return $this->write_new_file($returnstr, $contextid, $filename, $user, $requestorid);
     }

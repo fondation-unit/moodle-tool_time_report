@@ -56,12 +56,8 @@ function generate_file_name($username, $startdate, $enddate) {
         throw new \coding_exception('Missing username');
     }
     return strtolower(get_string('report', 'core')) 
-            . '__' 
-            . to_snake_case($username) 
-            . '__' 
-            . format_readable_date($startdate, 2) 
-            . '_' 
-            . format_readable_date($enddate, 2) . '.csv';
+            . '__' . to_snake_case($username) 
+            . '__' . $startdate . '_' . $enddate . '.csv';
 }
 
 /**
@@ -111,20 +107,6 @@ function to_snake_case($str, $glue = '_') {
             return $glue . strtolower($matches[0]);
         }, $str), $glue
     );
-}
-
-/**
- * Adds a hyphen between month and year.
- *
- * @param  string $str Date string
- * @param  string $num Position of the cut off
- * @return string
- */
-function format_readable_date($str, $num) {
-    $output[0] = substr($str, 0, $num);
-    $output[1] = '-';
-    $output[2] = substr($str, $num, strlen($str));
-    return implode($output);
 }
 
 /**
