@@ -75,15 +75,16 @@ class external extends external_api {
         }
 
         $fs = get_file_storage();
-        $file = $fs->get_file($serialiseddata['contextid'], 
-            'tool_time_report', 
-            'content', 
-            '0', 
-            '/', 
+        $file = $fs->get_file($serialiseddata['contextid'],
+            'tool_time_report',
+            'content',
+            '0',
+            '/',
             generate_file_name($serialiseddata['username'], $serialiseddata['start'], $serialiseddata['end'])
         );
+
         if ($file) {
-            // Delete the old file first
+            // Delete the old file first.
             $file->delete();
         }
 
