@@ -24,7 +24,7 @@
 
 namespace tool_time_report\task;
 
-require_once __DIR__ . '/../../../../../config.php';
+require_once dirname(__FILE__) . '/../../../../../config.php';
 require_once dirname(__FILE__) . '/../../locallib.php';
 
 use core\message\message;
