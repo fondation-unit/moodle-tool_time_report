@@ -77,6 +77,7 @@ class generate_time_report extends \core\task\adhoc_task {
             $hours = floor($seconds / 3600);
         }
         $seconds = $seconds % 3600;
+
         return str_pad($hours, 2, '0', STR_PAD_LEFT)
             . date(':i:s', $seconds)
             . ($milliseconds ? $milliseconds : '');
@@ -143,6 +144,7 @@ class generate_time_report extends \core\task\adhoc_task {
         }
 
         $this->set_total_time($totaltime);
+
         return $out;
     }
 
@@ -154,6 +156,7 @@ class generate_time_report extends \core\task\adhoc_task {
         if (!isset(array_values($data)[$iteration + 1])) {
             return $item;
         }
+
         return array_values($data)[$iteration + 1];
     }
 
@@ -161,6 +164,7 @@ class generate_time_report extends \core\task\adhoc_task {
         $date = date('d/m/Y', $itemtimecreated);
         $seconds = self::format_seconds($timefortheday);
         array_push($items, array($date, $seconds));
+
         return $items;
     }
 
@@ -188,6 +192,7 @@ class generate_time_report extends \core\task\adhoc_task {
         for ($i = 0; $i < $len; $i++) {
             $csventries[$i + $shift] = $data[$i];
         }
+
         foreach ($csventries as $entry) {
             $returnstr .= '"' . implode('"' . $delimiter . '"', $entry) . '"' . "\n";
         }
@@ -252,6 +257,7 @@ class generate_time_report extends \core\task\adhoc_task {
         $message->contexturl        = $contexturl;
         $message->contexturlname    = get_string('time_report', 'tool_time_report');
         $message->attachment = $file; // Set the file attachment.
+
         message_send($message);
     }
 }
