@@ -23,6 +23,7 @@
  */
 
 namespace tool_time_report\output;
+
 defined('MOODLE_INTERNAL') || die();
 
 use renderable;
@@ -31,6 +32,20 @@ use templatable;
 use stdClass;
 
 class get_report implements renderable, templatable {
+    /** @var int */
+    private $requestorid;
+
+    /** @var int */
+    private $userid;
+
+    /** @var string */
+    private $username;
+
+    /** @var int */
+    private $contextid;
+
+    /** @var array */
+    private $reportfiles;
 
     public function __construct($requestorid, $userid, $username, $contextid, $reportfiles) {
         $this->requestorid = $requestorid;
