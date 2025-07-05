@@ -65,14 +65,14 @@ class generate_time_report extends \core\task\adhoc_task {
 
             $user = $DB->get_record('user', array('id' => $data->userid), '*', MUST_EXIST);
             $results = get_log_records($user->id, $startdate, $enddate);
-            $csvdata = $this->prepare_results($user, $results);
+            $csvdata = $this->prepare_results($results);
             $this->create_csv($user, $data->requestorid, $csvdata, $data->contextid, $startdate, $enddate);
         }
     }
 
     private static function format_seconds($seconds) {
         $hours = 0;
-        $milliseconds = str_replace('0.', '', $seconds - floor( $seconds ));
+        $milliseconds = str_replace('0.', '', $seconds - floor($seconds));
         if ($seconds > 3600) {
             $hours = floor($seconds / 3600);
         }
@@ -82,9 +82,9 @@ class generate_time_report extends \core\task\adhoc_task {
             . ($milliseconds ? $milliseconds : '');
     }
 
-    private function prepare_results($user, $data) {
+    private function prepare_results($data) {
         if (!array_values($data)) {
-            return '<h5>'. get_string('no_results_found', 'tool_time_report') .'</h5>';
+            return '<h5>' . get_string('no_results_found', 'tool_time_report') . '</h5>';
         }
 
         $idletime = get_config('tool_time_report', 'idletime') / MINSECS;
@@ -135,7 +135,8 @@ class generate_time_report extends \core\task\adhoc_task {
             }
 
             if (($timefortheday > 0 && isset($nextval) && $nextval->logtimecreated != $currentday->logtimecreated)
-                || ($timefortheday > 0 && $nextval == $item)) {
+                || ($timefortheday > 0 && $nextval == $item)
+            ) {
                 $totaltime = $totaltime + $timefortheday;
                 $out = self::push_result($out, $item->timecreated, $timefortheday);
             }
@@ -210,8 +211,14 @@ class generate_time_report extends \core\task\adhoc_task {
             'userid' => $user->id
         );
 
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+        $file = $fs->get_file(
+            $fileinfo['contextid'],
+            $fileinfo['component'],
+            $fileinfo['filearea'],
+            $fileinfo['itemid'],
+            $fileinfo['filepath'],
+            $fileinfo['filename']
+        );
 
         if ($file) {
             $file->delete(); // Delete the old file first.
@@ -236,7 +243,7 @@ class generate_time_report extends \core\task\adhoc_task {
         $message->name              = 'reportcreation';
         $message->userfrom          = \core_user::get_noreply_user();
         $message->userto            = $requestorid;
-        $message->subject           = get_string('messageprovider:reportcreation', 'tool_time_report'). " : " .$fullname;
+        $message->subject           = get_string('messageprovider:reportcreation', 'tool_time_report') . " : " . $fullname;
         $message->fullmessageformat = FORMAT_HTML;
         $message->fullmessage       = html_to_text($messagehtml);
         $message->fullmessagehtml   = $messagehtml;
