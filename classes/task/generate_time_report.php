@@ -33,7 +33,7 @@ use core\message\message;
 use moodle_url;
 
 class generate_time_report extends \core\task\adhoc_task {
-
+    /** @var int */
     public $totaltime = 0;
 
     public function set_total_time($totaltime) {
@@ -66,7 +66,12 @@ class generate_time_report extends \core\task\adhoc_task {
             $user = $DB->get_record('user', array('id' => $data->userid), '*', MUST_EXIST);
             $results = get_log_records($user->id, $startdate, $enddate);
             $csvdata = $this->prepare_results($results);
-            $this->create_csv($user, $data->requestorid, $csvdata, $data->contextid, $startdate, $enddate);
+
+            if ($csvdata) {
+                $this->create_csv($user, $data->requestorid, $csvdata, $data->contextid, $startdate, $enddate);
+            } else {
+                return '<h5>' . get_string('no_results_found', 'tool_time_report') . '</h5>';
+            }
         }
     }
 
@@ -85,7 +90,7 @@ class generate_time_report extends \core\task\adhoc_task {
 
     private function prepare_results($data) {
         if (!array_values($data)) {
-            return '<h5>' . get_string('no_results_found', 'tool_time_report') . '</h5>';
+            return null;
         }
 
         $idletime = get_config('tool_time_report', 'idletime') / MINSECS;
