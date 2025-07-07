@@ -1,16 +1,16 @@
 # moodle-tool_time_report
 
-Admin tool for [Moodle](https://moodle.org/) creating reports of time spent online.
+Moodle admin tool plugin that generates per-user reports of their online presence time.
 
-* [Installation](#installation)
-* [Usage](#usage)
-  * [UI overview](#ui-overview-)
-  * [Example of CSV report](#example-of-csv-report-)
-* [Settings](#settings)
-  * [tool_time_report/targets](#tool_time_reporttargets)
-  * [tool_time_report/idletime](#tool_time_reportidletime)
-  * [tool_time_report/borrowedtime](#tool_time_reportborrowedtime)
-* [Development](#development)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [UI overview](#ui-overview-)
+  - [Example of CSV report](#example-of-csv-report-)
+- [Settings](#settings)
+  - [tool_time_report/targets](#tool_time_reporttargets)
+  - [tool_time_report/idletime](#tool_time_reportidletime)
+  - [tool_time_report/borrowedtime](#tool_time_reportborrowedtime)
+- [Development](#development)
 
 ## Installation
 
@@ -18,14 +18,13 @@ Admin tool for [Moodle](https://moodle.org/) creating reports of time spent onli
 2. Rename the plugin folder as `time_report`
 3. Finish the installation
 
-
 ## Usage
 
 Admins and users having the `tool/time_report:view` capability can access the reports through the user's profile (e.g. `/user/profile.php?id=2`), under the **reports category**.
 
-The interface allow the creationg of CSV files listing 
+The interface allow the creationg of CSV files listing
 
-The plugin uses a cron task job to generate the reports. It is not needed to stay on the page while the report is generating. 
+The plugin uses a cron task job to generate the reports. It is not needed to stay on the page while the report is generating.
 
 A notification is sent to the requestor when the report is ready to be downloaded.
 
@@ -65,10 +64,9 @@ The name of the files are created according the following scheme :
 | 16/05/2022                    | 00:03:40               |
 ```
 
-
 ## Settings
 
-Go to *Site Administration* -> *Reports* -> *Time Reports*. Descriptions for the settings are as follows :
+Go to _Site Administration_ -> _Reports_ -> _Time Reports_. Descriptions for the settings are as follows :
 
 #### tool_time_report/targets
 
@@ -84,7 +82,6 @@ Defines the time span after which the difference in time between 2 logs is consi
 Defines the amount of time counted in the report that the user has after being considered inactive.
 
 Without this, the last action of viewing a course module performed by a user (e.g. a PDF file) before his inactivity would not generate additional connection time for one day. For the benefit of the doubt, we grant a specific amount of time.
-
 
 ## Development
 

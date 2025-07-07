@@ -33,7 +33,7 @@ use core\message\message;
 use moodle_url;
 
 class generate_time_report extends \core\task\adhoc_task {
-
+    /** @var int */
     public $totaltime = 0;
 
     public function set_total_time($totaltime) {
@@ -65,26 +65,37 @@ class generate_time_report extends \core\task\adhoc_task {
 
             $user = $DB->get_record('user', array('id' => $data->userid), '*', MUST_EXIST);
             $results = get_log_records($user->id, $startdate, $enddate);
-            $csvdata = $this->prepare_results($user, $results);
-            $this->create_csv($user, $data->requestorid, $csvdata, $data->contextid, $startdate, $enddate);
+            $csvdata = $this->prepare_results($results);
+
+            if ($csvdata) {
+                $this->create_csv($user, $data->requestorid, $csvdata, $data->contextid, $startdate, $enddate);
+            } else {
+                $fullmessage = get_string('no_results_found', 'tool_time_report');
+                $smallmessage = get_string('no_results_found', 'tool_time_report');
+                $file = null;
+
+                $this->generate_message($user, $file, $data->requestorid, $fullmessage, $smallmessage);
+                return null;
+            }
         }
     }
 
     private static function format_seconds($seconds) {
         $hours = 0;
-        $milliseconds = str_replace('0.', '', $seconds - floor( $seconds ));
+        $milliseconds = str_replace('0.', '', $seconds - floor($seconds));
         if ($seconds > 3600) {
             $hours = floor($seconds / 3600);
         }
         $seconds = $seconds % 3600;
+
         return str_pad($hours, 2, '0', STR_PAD_LEFT)
             . date(':i:s', $seconds)
             . ($milliseconds ? $milliseconds : '');
     }
 
-    private function prepare_results($user, $data) {
+    private function prepare_results($data) {
         if (!array_values($data)) {
-            return '<h5>'. get_string('no_results_found', 'tool_time_report') .'</h5>';
+            return null;
         }
 
         $idletime = get_config('tool_time_report', 'idletime') / MINSECS;
@@ -135,13 +146,15 @@ class generate_time_report extends \core\task\adhoc_task {
             }
 
             if (($timefortheday > 0 && isset($nextval) && $nextval->logtimecreated != $currentday->logtimecreated)
-                || ($timefortheday > 0 && $nextval == $item)) {
+                || ($timefortheday > 0 && $nextval == $item)
+            ) {
                 $totaltime = $totaltime + $timefortheday;
                 $out = self::push_result($out, $item->timecreated, $timefortheday);
             }
         }
 
         $this->set_total_time($totaltime);
+
         return $out;
     }
 
@@ -153,6 +166,7 @@ class generate_time_report extends \core\task\adhoc_task {
         if (!isset(array_values($data)[$iteration + 1])) {
             return $item;
         }
+
         return array_values($data)[$iteration + 1];
     }
 
@@ -160,6 +174,7 @@ class generate_time_report extends \core\task\adhoc_task {
         $date = date('d/m/Y', $itemtimecreated);
         $seconds = self::format_seconds($timefortheday);
         array_push($items, array($date, $seconds));
+
         return $items;
     }
 
@@ -187,6 +202,7 @@ class generate_time_report extends \core\task\adhoc_task {
         for ($i = 0; $i < $len; $i++) {
             $csventries[$i + $shift] = $data[$i];
         }
+
         foreach ($csventries as $entry) {
             $returnstr .= '"' . implode('"' . $delimiter . '"', $entry) . '"' . "\n";
         }
@@ -210,8 +226,14 @@ class generate_time_report extends \core\task\adhoc_task {
             'userid' => $user->id
         );
 
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+        $file = $fs->get_file(
+            $fileinfo['contextid'],
+            $fileinfo['component'],
+            $fileinfo['filearea'],
+            $fileinfo['itemid'],
+            $fileinfo['filepath'],
+            $fileinfo['filename']
+        );
 
         if ($file) {
             $file->delete(); // Delete the old file first.
@@ -219,16 +241,18 @@ class generate_time_report extends \core\task\adhoc_task {
 
         if ($fs->create_file_from_string($fileinfo, $content)) {
             $path = "$CFG->wwwroot/pluginfile.php/$contextid/tool_time_report/content/0/$filename";
-            $this->generate_message($user, $path, $filename, $file, $requestorid);
+            $fullmessage = "<p>" . get_string('download', 'core') . " : ";
+            $fullmessage .= "<a href=\"$path\" download><i class=\"fa fa-download\"></i>$filename</a></p>";
+            $smallmessage = get_string('messageprovider:report_created', 'tool_time_report');
+
+            $this->generate_message($user, $file, $requestorid, $fullmessage, $smallmessage);
         }
 
         return $file;
     }
 
-    public function generate_message($user, $path, $filename, $file, $requestorid) {
+    public function generate_message($user, $file, $requestorid, $fullmessage, $smallmessage) {
         $fullname = fullname($user);
-        $messagehtml = "<p>" . get_string('download', 'core') . " : ";
-        $messagehtml .= "<a href=\"$path\" download><i class=\"fa fa-download\"></i>$filename</a></p>";
         $contexturl = new moodle_url('/admin/tool/time_report/view.php', array('userid' => $user->id));
 
         $message = new message();
@@ -236,15 +260,18 @@ class generate_time_report extends \core\task\adhoc_task {
         $message->name              = 'reportcreation';
         $message->userfrom          = \core_user::get_noreply_user();
         $message->userto            = $requestorid;
-        $message->subject           = get_string('messageprovider:reportcreation', 'tool_time_report'). " : " .$fullname;
+        $message->subject           = get_string('messageprovider:reportcreation', 'tool_time_report') . " : " . $fullname;
         $message->fullmessageformat = FORMAT_HTML;
-        $message->fullmessage       = html_to_text($messagehtml);
-        $message->fullmessagehtml   = $messagehtml;
-        $message->smallmessage      = get_string('messageprovider:report_created', 'tool_time_report');
+        $message->fullmessage       = html_to_text($fullmessage);
+        $message->fullmessagehtml   = $fullmessage;
+        $message->smallmessage      = $smallmessage;
         $message->notification      = 1;
         $message->contexturl        = $contexturl;
         $message->contexturlname    = get_string('time_report', 'tool_time_report');
-        $message->attachment = $file; // Set the file attachment.
+        if ($file) {
+            $message->attachment = $file; // Set the file attachment.
+        }
+
         message_send($message);
     }
 }
