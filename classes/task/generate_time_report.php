@@ -70,7 +70,12 @@ class generate_time_report extends \core\task\adhoc_task {
             if ($csvdata) {
                 $this->create_csv($user, $data->requestorid, $csvdata, $data->contextid, $startdate, $enddate);
             } else {
-                return '<h5>' . get_string('no_results_found', 'tool_time_report') . '</h5>';
+                $fullmessage = get_string('no_results_found', 'tool_time_report');
+                $smallmessage = get_string('no_results_found', 'tool_time_report');
+                $file = null;
+
+                $this->generate_message($user, $file, $data->requestorid, $fullmessage, $smallmessage);
+                return null;
             }
         }
     }
@@ -236,16 +241,18 @@ class generate_time_report extends \core\task\adhoc_task {
 
         if ($fs->create_file_from_string($fileinfo, $content)) {
             $path = "$CFG->wwwroot/pluginfile.php/$contextid/tool_time_report/content/0/$filename";
-            $this->generate_message($user, $path, $filename, $file, $requestorid);
+            $fullmessage = "<p>" . get_string('download', 'core') . " : ";
+            $fullmessage .= "<a href=\"$path\" download><i class=\"fa fa-download\"></i>$filename</a></p>";
+            $smallmessage = get_string('messageprovider:report_created', 'tool_time_report');
+
+            $this->generate_message($user, $file, $requestorid, $fullmessage, $smallmessage);
         }
 
         return $file;
     }
 
-    public function generate_message($user, $path, $filename, $file, $requestorid) {
+    public function generate_message($user, $file, $requestorid, $fullmessage, $smallmessage) {
         $fullname = fullname($user);
-        $messagehtml = "<p>" . get_string('download', 'core') . " : ";
-        $messagehtml .= "<a href=\"$path\" download><i class=\"fa fa-download\"></i>$filename</a></p>";
         $contexturl = new moodle_url('/admin/tool/time_report/view.php', array('userid' => $user->id));
 
         $message = new message();
@@ -255,13 +262,15 @@ class generate_time_report extends \core\task\adhoc_task {
         $message->userto            = $requestorid;
         $message->subject           = get_string('messageprovider:reportcreation', 'tool_time_report') . " : " . $fullname;
         $message->fullmessageformat = FORMAT_HTML;
-        $message->fullmessage       = html_to_text($messagehtml);
-        $message->fullmessagehtml   = $messagehtml;
-        $message->smallmessage      = get_string('messageprovider:report_created', 'tool_time_report');
+        $message->fullmessage       = html_to_text($fullmessage);
+        $message->fullmessagehtml   = $fullmessage;
+        $message->smallmessage      = $smallmessage;
         $message->notification      = 1;
         $message->contexturl        = $contexturl;
         $message->contexturlname    = get_string('time_report', 'tool_time_report');
-        $message->attachment = $file; // Set the file attachment.
+        if ($file) {
+            $message->attachment = $file; // Set the file attachment.
+        }
 
         message_send($message);
     }
